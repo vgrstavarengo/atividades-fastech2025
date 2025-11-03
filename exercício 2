@@ -1,0 +1,98 @@
+import os
+
+def processar_notas_alunos(arquivo_entrada='notas.txt'):
+    """
+    Lê um arquivo de notas, calcula a média de cada aluno,
+    e salva os resultados em três arquivos separados:
+    aprovados.txt, exame.txt, e reprovados.txt.
+    """
+    
+    # Listas para armazenar os dados de saída
+    aprovados = []
+    exame = []
+    reprovados = []
+
+    # --- 1. Ler o arquivo notas.txt ---
+    try:
+        with open(arquivo_entrada, 'r', encoding='utf-8') as f:
+            linhas = f.readlines()
+            
+            if not linhas:
+                print(f"Aviso: O arquivo '{arquivo_entrada}' está vazio.")
+                return
+
+    except FileNotFoundError:
+        print(f"ERRO: O arquivo '{arquivo_entrada}' não foi encontrado.")
+        print("Por favor, crie este arquivo no mesmo diretório do script.")
+        return
+    except Exception as e:
+        print(f"ERRO ao ler o arquivo: {e}")
+        return
+
+    # --- 2. Calcular a média e 3. Verificar o resultado ---
+    for i, linha in enumerate(linhas):
+        linha_limpa = linha.strip()
+        
+        # Ignorar linhas em branco
+        if not linha_limpa:
+            continue
+            
+        partes = linha_limpa.split(',')
+        
+        # Validar formato da linha
+        if len(partes) < 2:
+            print(f"Aviso: Ignorando linha {i+1} (formato inválido): '{linha_limpa}'")
+            continue
+            
+        nome = partes[0].strip()
+        
+        try:
+            # Converte todas as partes, exceto o nome, para números (float)
+            notas = [float(nota.strip()) for nota in partes[1:]]
+            
+            if not notas:
+                print(f"Aviso: Ignorando aluno {nome} (sem notas): '{linha_limpa}'")
+                continue
+
+            # Calcular a média
+            media = sum(notas) / len(notas)
+            
+            # Preparar a linha de saída
+            # Ex: "Maria Silva, Média: 8.50"
+            linha_saida = f"Nome: {nome}, Média: {media:.2f}\n"
+            
+            # Verificar o resultado e adicionar à lista correta
+            if media >= 7:
+                aprovados.append(linha_saida)
+            elif media >= 5: # Já sabemos que é < 7
+                exame.append(linha_saida)
+            else: # Média < 5
+                reprovados.append(linha_saida)
+
+        except ValueError:
+            print(f"Aviso: Ignorando linha {i+1} (nota inválida): '{linha_limpa}'")
+        except ZeroDivisionError:
+             print(f"Aviso: Ignorando aluno {nome} (sem notas): '{linha_limpa}'")
+
+    # --- 4. Salvar as informações ---
+    try:
+        with open('aprovados.txt', 'w', encoding='utf-8') as f_aprov:
+            f_aprov.writelines(aprovados)
+
+        with open('exame.txt', 'w', encoding='utf-8') as f_exame:
+            f_exame.writelines(exame)
+
+        with open('reprovados.txt', 'w', encoding='utf-8') as f_reprov:
+            f_reprov.writelines(reprovados)
+            
+        print("\n--- Processamento Concluído ---")
+        print(f"Total de alunos processados: {len(aprovados) + len(exame) + len(reprovados)}")
+        print(f"Aprovados: {len(aprovados)}")
+        print(f"Em Exame:  {len(exame)}")
+        print(f"Reprovados: {len(reprovados)}")
+        print("Arquivos 'aprovados.txt', 'exame.txt' e 'reprovados.txt' foram criados/atualizados.")
+
+    except Exception as e:
+        print(f"ERRO ao salvar os arquivos de saída: {e}")
+
+processar_notas_alunos()
