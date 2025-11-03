@@ -1,0 +1,44 @@
+import sys
+
+def imprimir_situacao_alunos(arquivo_aprovados="aprovados.txt", arquivo_reprovados="reprovados.txt"):
+    """
+    Lê arquivos de alunos aprovados e reprovados e imprime
+    uma lista consolidada com a situação de cada um.
+    """
+    
+    print("--- Lista de Alunos e Situação ---")
+    
+    # Usamos 'try...except' para lidar com o caso de um arquivo não existir
+    try:
+        # --- Processar Alunos Aprovados ---
+        # 'with open' garante que o arquivo será fechado automaticamente
+        with open(arquivo_aprovados, 'r', encoding='utf-8') as f_aprovados:
+            for linha in f_aprovados:
+                # .strip() remove espaços em branco e quebras de linha (\n) do início e fim
+                aluno = linha.strip() 
+                if aluno: # Ignora linhas que possam estar em branco
+                    print(f"- {aluno} (Situação: Aprovado)")
+
+        # --- Processar Alunos Reprovados ---
+        with open(arquivo_reprovados, 'r', encoding='utf-8') as f_reprovados:
+            for linha in f_reprovados:
+                aluno = linha.strip()
+                if aluno: # Ignora linhas em branco
+                    print(f"- {aluno} (Situação: Reprovado)")
+
+    except FileNotFoundError as e:
+        # Informa qual arquivo específico não foi encontrado
+        print(f"\n[ERRO] O arquivo '{e.filename}' não foi encontrado.", file=sys.stderr)
+        print("Por favor, verifique se os arquivos estão no mesmo diretório que o script.", file=sys.stderr)
+    except Exception as e:
+        # Captura outros erros inesperados
+        print(f"\n[ERRO] Ocorreu um erro inesperado: {e}", file=sys.stderr)
+
+# --- Para executar o algoritmo ---
+# Salve este código como um arquivo .py (por exemplo, 'processar_alunos.py').
+# Crie os arquivos 'aprovados.txt' e 'reprovados.txt' na mesma pasta.
+# Rode o script no seu terminal (ex: python processar_alunos.py)
+if __name__ == "__main__":
+    imprimir_situacao_alunos() 
+
+    PROFESSOR SIGA OS PASSOS Á CIMA!!
