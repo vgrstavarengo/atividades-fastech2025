@@ -1,0 +1,35 @@
+def coletar_e_salvar_notas():
+    """
+    Algoritmo para coletar dados do aluno e salvar em um arquivo.
+    """
+    
+    # 1. Coletar as informações
+    print("--- Cadastro de Notas de Aluno ---")
+    nome = input("Digite o nome do aluno: ")
+    nota1 = input("Digite a Nota 1: ")
+    nota2 = input("Digite a Nota 2: ")
+    nota3 = input("Digite a Nota 3: ")
+
+    # 2. Formatar os dados para salvar
+    # Vamos salvar no formato CSV (Valores Separados por Vírgula)
+    # O '\n' no final significa "nova linha", para que o próximo aluno
+    # seja salvo na linha de baixo.
+    linha_para_salvar = f"{nome},{nota1},{nota2},{nota3}\n"
+
+    # 3. Salvar os dados no arquivo
+    try:
+        # 'a' significa "append" (anexar). 
+        # Isso adiciona o novo aluno ao final do arquivo, sem apagar os anteriores.
+        # 'encoding="utf-8"' garante que nomes com acentos (ex: João) sejam salvos corretamente.
+        with open("notas.txt", "a", encoding="utf-8") as arquivo:
+            arquivo.write(linha_para_salvar)
+        
+        print(f"\n[SUCESSO] Dados do aluno {nome} foram salvos em 'notas.txt'.")
+
+    except IOError as e:
+        # Informa se houver um erro ao tentar escrever no arquivo
+        print(f"\n[ERRO] Não foi possível salvar o arquivo. Erro: {e}")
+
+# --- Ponto de entrada do algoritmo ---
+if __name__ == "__main__":
+    coletar_e_salvar_notas()
