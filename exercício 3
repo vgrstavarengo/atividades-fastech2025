@@ -1,0 +1,86 @@
+import sys
+
+# --- Nomes dos arquivos ---
+ARQUIVO_ENTRADA = "exame.txt"
+ARQUIVO_APROVADOS = "aprovados.txt"
+ARQUIVO_REPROVADOS = "reprovados.txt"
+
+def processar_notas_exame():
+    """
+    Lê o arquivo de alunos em exame, calcula a média final
+    e escreve nos arquivos de aprovados ou reprovados.
+    """
+    print(f"Iniciando processamento do arquivo: {ARQUIVO_ENTRADA}...")
+
+    try:
+        # Abre os três arquivos necessários
+        # 'r' - Leitura (arquivo de entrada)
+        # 'a' - Append/Adicionar (arquivos de saída, para não apagar conteúdo anterior)
+        with open(ARQUIVO_ENTRADA, 'r', encoding='utf-8') as f_exame, \
+             open(ARQUIVO_APROVADOS, 'a', encoding='utf-8') as f_aprovados, \
+             open(ARQUIVO_REPROVADOS, 'a', encoding='utf-8') as f_reprovados:
+
+            # Processa uma linha de cada vez
+            for linha in f_exame:
+                linha_limpa = linha.strip() # Remove espaços em branco e quebras de linha
+
+                # Ignora linhas em branco
+                if not linha_limpa:
+                    continue
+                
+                # --- 1. Coletar dados ---
+                # Tenta processar a linha. 
+                # Esperamos o formato: Nome, Média Anterior, Nota do Exame
+                try:
+                    partes = linha_limpa.split(',')
+                    
+                    # Verifica se temos os 3 campos
+                    if len(partes) != 3:
+                        print(f"  [Erro Linha] Formato inválido (dados faltando): '{linha_limpa}'")
+                        continue
+
+                    nome = partes[0].strip()
+                    media_anterior = float(partes[1].strip())
+                    nota_exame = float(partes[2].strip())
+
+                    # --- 2. Calcular a média ---
+                    media_final = (media_anterior + nota_exame) / 2
+
+                    # --- 3. Verificar o resultado ---
+                    # Formata a linha de saída
+                    # Usamos :.2f para formatar a média com 2 casas decimais
+                    linha_saida = f"{nome}, {media_final:.2f}"
+
+                    if media_final >= 5.0:
+                        # --- 4. Adicionar ao arquivo de aprovados ---
+                        legenda = "Aprovado após exame"
+                        f_aprovados.write(f"{linha_saida}, {legenda}\n")
+                    else:
+                        # --- 5. Adicionar ao arquivo de reprovados ---
+                        legenda = "Reprovado após exame"
+                        f_reprovados.write(f"{linha_saida}, {legenda}\n")
+
+                except ValueError:
+                    # Erro se a nota não for um número (ex: "Maria, 4.0, abc")
+                    print(f"  [Erro Linha] Dados numéricos inválidos: '{linha_limpa}'")
+                except Exception as e:
+                    # Pega qualquer outro erro inesperado na linha
+                    print(f"  [Erro Linha] Erro inesperado: '{linha_limpa}' | {e}")
+
+    except FileNotFoundError:
+        print(f"ERRO CRÍTICO: O arquivo de entrada '{ARQUIVO_ENTRADA}' não foi encontrado.")
+        sys.exit(1) # Termina o script com código de erro
+    except IOError as e:
+        print(f"ERRO CRÍTICO: Não foi possível ler ou escrever nos arquivos. {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"ERRO CRÍTICO: Um erro inesperado ocorreu. {e}")
+        sys.exit(1)
+
+    print(f"Processamento concluído.")
+    print(f"Resultados salvos em '{ARQUIVO_APROVADOS}' e '{ARQUIVO_REPROVADOS}'.")
+
+
+# --- Executa a função principal ---
+if __name__ == "__main__":
+    processar_notas_exame()
