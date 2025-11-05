@@ -1,0 +1,60 @@
+import sympy as sp
+
+def calculadora():
+    print("=== CALCULADORA INTELIGENTE ===")
+    print("Você pode digitar:")
+    print("- Operações simples: 2+3*5, (4+2)/3, etc.")
+    print("- Equações: 2*x + 5 = 15 ou x**2 + 3*x + 2 = 0")
+    print("- Fórmula de Bhaskara (automático para equações de 2º grau)")
+    print("Digite 'sair' para encerrar.\n")
+
+    x = sp.Symbol('x')
+
+    while True:
+        entrada = input(">> ").strip()
+
+        if entrada.lower() in ['sair', 'exit', 'quit']:
+            print("Encerrando...")
+            break
+
+        try:
+            # Verifica se é uma equação (tem '=')
+            if '=' in entrada:
+                esquerda, direita = entrada.split('=')
+                eq = sp.Eq(sp.sympify(esquerda), sp.sympify(direita))
+                solucoes = sp.solve(eq, x)
+
+                print(f"→ Equação: {eq}")
+                print(f"→ Solução: {solucoes}")
+
+                # Caso seja uma equação de 2º grau, exibe Bhaskara detalhado
+                grau = sp.degree(sp.expand(esquerda) - sp.expand(direita), x)
+                if grau == 2:
+                    a = sp.expand(esquerda - direita).coeff(x, 2)
+                    b = sp.expand(esquerda - direita).coeff(x, 1)
+                    c = sp.expand(esquerda - direita).coeff(x, 0)
+                    delta = b**2 - 4*a*c
+                    print("\n--- Fórmula de Bhaskara ---")
+                    print(f"a = {a}, b = {b}, c = {c}")
+                    print(f"Δ = {delta}")
+                    if delta < 0:
+                        print("Não há raízes reais.")
+                    else:
+                        x1 = (-b + sp.sqrt(delta)) / (2*a)
+                        x2 = (-b - sp.sqrt(delta)) / (2*a)
+                        print(f"x₁ = {x1}")
+                        print(f"x₂ = {x2}")
+                    print("----------------------------\n")
+
+            else:
+                # Avalia expressão matemática comum
+                resultado = sp.sympify(entrada).evalf()
+                print(f"→ Resultado: {resultado}")
+
+        except Exception as e:
+            print(f"Erro: {e}")
+            print("Tente novamente com uma expressão válida.\n")
+
+
+if _name_ == "_main_":
+    calculadora()
