@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="Calculadora Avançada - Cálculo, Álgebra, Trigonometria e Bhaskara">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Calculadora">
+    
+    <title>Calculadora Avançada</title>
+    
+    <!-- Link para o manifesto PWA -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkNhbGN1bGFkb3JhIEF2YW7Dp2FkYSIsCiAgInNob3J0X25hbWUiOiAiQ2FsY3VsYWRvcmEiLAogICJkZXNjcmlwdGlvbiI6ICJDYWxjdWxhZG9yYSBpbnRlbGlnZW50ZSBjb20gQmhhc2thcmEsIGPDoWxjdWxvIGUgw6FsZ2VicmEiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzY2N2VlYSIsCiAgInRoZW1lX2NvbG9yIjogIiM2NjdlZWEiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0NzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCclM0UlM0NyZWN0IHdpZHRoPScxMDAnIGhlaWdodD0nMTAwJyBmaWxsPSclMjM2NjdlZWEnLyUzRSUzQ3RleHQgeD0nNTAlMjUnIHk9JzUwJTI1JyBmb250LXNpemU9JzUwJyBmaWxsPSd3aGl0ZScgdGV4dC1hbmNob3I9J21pZGRsZScgZHk9Jy4zNWVtJyUzRSVGMCU5RiVBNyVBRSUzQy90ZXh0JTNFJTNDL3N2ZyUzRSIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0sCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIGZpbGw9JyUyMzY2N2VlYScvJTNFJTNDdGV4dCB4PSc1MCUyNScgeT0nNTAlMjUnIGZvbnQtc2l6ZT0nNTAnIGZpbGw9J3doaXRlJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBkeT0nLjM1ZW0nJTNFJUYwJTlGJUE3JUFFJTNDL3RleHQlM0UlM0Mvc3ZnJTNFIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0KfQ==">
+    
+    <!-- Ícones para iOS -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23667eea'/%3E%3Ctext x='50%25' y='50%25' font-size='50' fill='white' text-anchor='middle' dy='.35em'%3E🧮%3C/text%3E%3C/svg%3E">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --error: #e74c3c;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --border: #e0e0e0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            max-height: 95vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: clamp(20px, 5vw, 28px);
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: clamp(12px, 3vw, 14px);
+        }
+
+        .content {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .examples {
+            background: var(--bg-light);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+
+        .examples h3 {
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-size: clamp(14px, 3.5vw, 18px);
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+        }
+
+        .example-item {
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: clamp(11px, 2.5vw, 13px);
+            border-left: 3px solid var(--primary);
+            word-wrap: break-word;
+        }
+
+        .example-item strong {
+            color: var(--secondary);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .input-section {
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            min-width: 0;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: clamp(14px, 3.5vw, 16px);
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: clamp(14px, 3.5vw, 16px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .output-section {
+            background: var(--bg-light);
+            border-radius: 10px;
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 150px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .output-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary);
+            animation: slideIn 0.3s ease;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .output-item .input {
+            color: var(--secondary);
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: clamp(13px, 3vw, 14px);
+        }
+
+        .output-item .result {
+            color: var(--text-dark);
+            font-size: clamp(15px, 3.5vw, 18px);
+            line-height: 1.4;
+        }
+
+        .error {
+            border-left-color: var(--error);
+        }
+
+        .error .result {
+            color: var(--error);
+        }
+
+        .clear-btn {
+            background: var(--error);
+            margin-top: 10px;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        .clear-btn:hover {
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .install-banner {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .install-banner.show {
+            display: flex;
+        }
+
+        .install-banner button {
+            background: white;
+            color: #28a745;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .install-banner .close-btn {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* Responsividade para telas muito pequenas */
+        @media (max-width: 400px) {
+            body {
+                padding: 5px;
+            }
+
+            .container {
+                border-radius: 15px;
+                max-height: 98vh;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .content {
+                padding: 10px;
+            }
+
+            .examples {
+                padding: 10px;
+            }
+
+            .example-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        /* Tablets e Landscape */
+        @media (min-width: 768px) and (orientation: landscape) {
+            .container {
+                max-height: 90vh;
+            }
+
+            .example-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Telas grandes */
+        @media (min-width: 1024px) {
+            body {
+                padding: 20px;
+            }
+
+            .content {
+                padding: 30px;
+            }
+
+            .header {
+                padding: 30px;
+            }
+        }
+
+        /* Modo escuro (se o dispositivo preferir) */
+        @media (prefers-color-scheme: dark) {
+            .container {
+                background: #1e1e1e;
+                color: #e0e0e0;
+            }
+
+            .examples {
+                background: #2d2d2d;
+            }
+
+            .example-item {
+                background: #3d3d3d;
+                color: #e0e0e0;
+            }
+
+            .output-section {
+                background: #2d2d2d;
+            }
+
+            .output-item {
+                background: #3d3d3d;
+                color: #e0e0e0;
+            }
+
+            input[type="text"] {
+                background: #3d3d3d;
+                border-color: #4d4d4d;
+                color: #e0e0e0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Banner de Instalação -->
+    <div class="install-banner" id="installBanner">
+        <span>📱 Instale o app na sua tela inicial!</span>
+        <div>
+            <button onclick="instalarApp()">Instalar</button>
+            <button class="close-btn" onclick="fecharBanner()">✕</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🧮 Calculadora Avançada</h1>
+            <p>Cálculo, Álgebra, Trigonometria e muito mais!</p>
+        </div>
+
+        <div class="content">
+            <div class="examples">
+                <h3>📚 Exemplos de uso:</h3>
+                <div class="example-grid">
+                    <div class="example-item"><strong>Básico:</strong> 2+3*5, sqrt(16)</div>
+                    <div class="example-item"><strong>Trigonometria:</strong> sin(pi/2)</div>
+                    <div class="example-item"><strong>Logaritmos:</strong> log(100, 10)</div>
+                    <div class="example-item"><strong>Potências:</strong> 2^8, e^2</div>
+                    <div class="example-item"><strong>Raízes:</strong> sqrt(2), nthRoot(27, 3)</div>
+                    <div class="example-item"><strong>Fatorial:</strong> 5!</div>
+                    <div class="example-item"><strong>Bhaskara:</strong> x^2 - 5x + 6 = 0</div>
+                    <div class="example-item"><strong>Equações:</strong> 2x + 5 = 15</div>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <div class="input-group">
+                    <input type="text" id="input" placeholder="Digite sua expressão matemática..." 
+                           onkeypress="if(event.key==='Enter') calcular()"
+                           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    <button onclick="calcular()">Calcular</button>
+                </div>
+            </div>
+
+            <div class="output-section" id="output">
+                <div style="text-align: center; color: #999; padding: 40px 10px;">
+                    Digite uma expressão matemática para começar
+                </div>
+            </div>
+
+            <button class="clear-btn" onclick="limparHistorico()">🗑️ Limpar Histórico</button>
+        </div>
+    </div>
+
+    <script>
+        const historico = [];
+        let deferredPrompt;
+
+        // Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZnVuY3Rpb24oZSkgewogIGNvbnNvbGUubG9nKCdTZXJ2aWNlIFdvcmtlciBpbnN0YWxhZG8nKTsKfSk7CgpzZWxmLmFkZEV2ZW50TGlzdGVuZXIoJ2FjdGl2YXRlJywgZnVuY3Rpb24oZSkgewogIGNvbnNvbGUubG9nKCdTZXJ2aWNlIFdvcmtlciBhdGl2YWRvJyk7Cn0pOwoKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsIGZ1bmN0aW9uKGUpIHsKICBlLnJlc3BvbmRXaXRoKAogICAgZmV0Y2goZS5yZXF1ZXN0KS5jYXRjaCgoKSA9PiB7CiAgICAgIHJldHVybiBuZXcgUmVzcG9uc2UoJ09mZmxpbmUnKTsKICAgIH0pCiAgKTsKfSk7')
+                    .then(reg => console.log('SW registrado'))
+                    .catch(err => console.log('SW não registrado', err));
+            });
+        }
+
+        // Detecta evento de instalação PWA
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBanner').classList.add('show');
+        });
+
+        function instalarApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('App instalado');
+                    }
+                    deferredPrompt = null;
+                    fecharBanner();
+                });
+            } else {
+                alert('Para instalar:\n\niOS: Toque em "Compartilhar" e depois "Adicionar à Tela de Início"\n\nAndroid: No menu do navegador, toque em "Adicionar à tela inicial"');
+            }
+        }
+
+        function fecharBanner() {
+            document.getElementById('installBanner').classList.remove('show');
+        }
+
+        function resolverEquacao(expressao) {
+            expressao = expressao.replace(/\s/g, '');
+            const partes = expressao.split('=');
+            if (partes.length !== 2) return null;
+            
+            const esquerda = partes[0];
+            const direita = partes[1];
+            let equacao = `(${esquerda}) - (${direita})`;
+            equacao = equacao.replace(/\*\*/g, '^');
+            
+            const termoX2 = equacao.match(/(-?\d*\.?\d*)\*?x\^2/);
+            const termoX = equacao.match(/([+-]?\d*\.?\d*)\*?x(?!\^)/);
+            const termoIndep = equacao.match(/([+-]?\d+\.?\d*)(?![x])/g);
+            
+            if (termoX2) {
+                let a = termoX2[1] || '1';
+                if (a === '' || a === '+') a = '1';
+                if (a === '-') a = '-1';
+                a = parseFloat(a);
+                
+                let b = 0;
+                if (termoX) {
+                    b = termoX[1] || '1';
+                    if (b === '' || b === '+') b = '1';
+                    if (b === '-') b = '-1';
+                    b = parseFloat(b);
+                }
+                
+                let c = 0;
+                if (termoIndep) {
+                    c = termoIndep
+                        .filter(t => !t.includes('x'))
+                        .reduce((sum, val) => sum + parseFloat(val), 0);
+                }
+                
+                const delta = b * b - 4 * a * c;
+                
+                if (delta < 0) {
+                    return `Sem solução real (Δ = ${delta.toFixed(2)} < 0)`;
+                } else if (delta === 0) {
+                    const x = -b / (2 * a);
+                    return `x = ${x.toFixed(4)} (raiz dupla, Δ = 0)`;
+                } else {
+                    const x1 = (-b + Math.sqrt(delta)) / (2 * a);
+                    const x2 = (-b - Math.sqrt(delta)) / (2 * a);
+                    return `x₁ = ${x1.toFixed(4)} e x₂ = ${x2.toFixed(4)} (Δ = ${delta.toFixed(2)})`;
+                }
+            }
+            
+            if (termoX) {
+                try {
+                    const node = math.parse(equacao);
+                    const simplified = math.simplify(node);
+                    const str = simplified.toString();
+                    const match = str.match(/([+-]?\d*\.?\d*)\s?\*?\s?x\s?([+-]?\d+\.?\d*)?/);
+                    
+                    if (match) {
+                        let a = match[1] || '1';
+                        if (a === '' || a === '+') a = '1';
+                        if (a === '-') a = '-1';
+                        a = parseFloat(a);
+                        let b = match[2] ? parseFloat(match[2]) : 0;
+                        const x = -b / a;
+                        return `x = ${x.toFixed(4)}`;
+                    }
+                } catch (e) {
+                    return null;
+                }
+            }
+            
+            return null;
+        }
+
+        function calcular() {
+            const input = document.getElementById('input');
+            const expressao = input.value.trim();
+            
+            if (!expressao) return;
+
+            try {
+                if (expressao.includes('=')) {
+                    const resultado = resolverEquacao(expressao);
+                    if (resultado) {
+                        adicionarAoHistorico(expressao, resultado, false);
+                        input.value = '';
+                        return;
+                    }
+                }
+
+                let expr = expressao
+                    .replace(/\*\*/g, '^')
+                    .replace(/pi/g, 'pi')
+                    .replace(/e\^/g, 'exp(')
+                    .replace(/sqrt\(/g, 'sqrt(');
+
+                if (expr.includes('exp(') && !expr.includes('exp()')) {
+                    const matches = expr.match(/exp\(/g);
+                    if (matches) {
+                        matches.forEach(() => {
+                            const pos = expr.indexOf('exp(');
+                            let count = 1;
+                            let i = pos + 4;
+                            let found = false;
+                            
+                            while (i < expr.length && count > 0) {
+                                if (expr[i] === '(') count++;
+                                if (expr[i] === ')') count--;
+                                if (count === 0) {
+                                    found = true;
+                                    break;
+                                }
+                                i++;
+                            }
+                            
+                            if (!found) {
+                                expr = expr.substring(0, pos + 4) + expr.substring(pos + 4) + ')';
+                            }
+                        });
+                    }
+                }
+
+                const resultado = math.evaluate(expr);
+                let resultadoFormatado;
+                
+                if (typeof resultado === 'number') {
+                    resultadoFormatado = math.format(resultado, {precision: 14});
+                } else {
+                    resultadoFormatado = resultado.toString();
+                }
+
+                adicionarAoHistorico(expressao, resultadoFormatado, false);
+                input.value = '';
+
+            } catch (error) {
+                adicionarAoHistorico(expressao, `Erro: ${error.message}`, true);
+            }
+        }
+
+        function adicionarAoHistorico(expressao, resultado, isError) {
+            historico.push({ expressao, resultado, isError });
+            atualizarOutput();
+        }
+
+        function atualizarOutput() {
+            const output = document.getElementById('output');
+            
+            if (historico.length === 0) {
+                output.innerHTML = `
+                    <div style="text-align: center; color: #999; padding: 40px 10px;">
+                        Digite uma expressão matemática para começar
+                    </div>
+                `;
+                return;
+            }
+
+            output.innerHTML = historico.map(item => `
+                <div class="output-item ${item.isError ? 'error' : ''}">
+                    <div class="input">» ${item.expressao}</div>
+                    <div class="result">→ ${item.resultado}</div>
+                </div>
+            `).reverse().join('');
+        }
+
+        function limparHistorico() {
+            historico.length = 0;
+            atualizarOutput();
+        }
+
+        window.onload = () => {
+            document.getElementById('input').focus();
+        };
+    </script>
+</body>
+</html>
