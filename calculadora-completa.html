@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Completa</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --error: #e74c3c;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --border: #e0e0e0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 900px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: clamp(20px, 5vw, 28px);
+            margin-bottom: 8px;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--bg-light);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-dark);
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .tab.active {
+            background: white;
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Estilos da Calculadora Avançada */
+        .examples {
+            background: var(--bg-light);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .examples h3 {
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+        }
+
+        .example-item {
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            border-left: 3px solid var(--primary);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .example-item:hover {
+            transform: translateX(5px);
+        }
+
+        .example-item strong {
+            color: var(--secondary);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"], input[type="number"] {
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"] {
+            flex: 1;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .output-section {
+            background: var(--bg-light);
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .output-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .output-item .input {
+            color: var(--secondary);
+            font-weight: bold;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+
+        .output-item .result {
+            color: var(--text-dark);
+            font-size: 18px;
+            word-break: break-word;
+        }
+
+        .error {
+            border-left-color: var(--error);
+        }
+
+        .error .result {
+            color: var(--error);
+        }
+
+        .clear-btn {
+            background: var(--error);
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        /* Estilos do Método da Bissecção */
+        .controles {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .controles label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: bold;
+        }
+
+        .destaque {
+            background-color: #e8f5e9;
+            font-weight: bold;
+        }
+
+        #resultado {
+            margin: 15px 0;
+            padding: 15px;
+            background: var(--bg-light);
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        #resultado h3 {
+            color: var(--success);
+        }
+
+        /* Footer */
+        footer {
+            background-color: white;
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .nomes h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .nomes p {
+            font-size: 14px;
+            margin: 5px 0;
+            color: var(--text-dark);
+        }
+
+        @media (max-width: 600px) {
+            .input-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+
+            .example-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧮 Calculadora Completa</h1>
+            <p>Calculadora Avançada + Método da Bissecção (TVI)</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="mudarAba('calculadora')">📊 Calculadora Avançada</button>
+            <button class="tab" onclick="mudarAba('bisseccao')">📈 Método da Bissecção</button>
+        </div>
+
+        <!-- ABA 1: Calculadora Avançada -->
+        <div id="calculadora" class="tab-content active">
+            <div class="examples">
+                <h3>📚 Exemplos (clique para usar):</h3>
+                <div class="example-grid">
+                    <div class="example-item" onclick="usarExemplo('2+3*5')">
+                        <strong>Básico:</strong> 2+3*5
+                    </div>
+                    <div class="example-item" onclick="usarExemplo('sqrt(16)')">
+                        <strong>Raiz:</strong> sqrt(16)
+                    </div>
+                    <div class="example-item" onclick="usarExemplo('sin(pi/2)')">
+                        <strong>Seno:</strong> sin(pi/2)
+                    </div>
+                    <div class="example-item" onclick="usarExemplo('log(100, 10)')">
+                        <strong>Log:</strong> log(100, 10)
+                    </div>
+                    <div class="example-item" onclick="usarExemplo('2^8')">
+                        <strong>Potência:</strong> 2^8
+                    </div>
+                    <div class="example-item" onclick="usarExemplo('5!')">
+                        <strong>Fatorial:</strong> 5!
+                    </div>
+                    <div class="example-item" onclick="usarExemplo('x^2 - 5x + 6 = 0')">
+                        <strong>Bhaskara:</strong> x² - 5x + 6 = 0
+                    </div>
+                    <div class="example-item" onclick="usarExemplo('2x + 5 = 15')">
+                        <strong>Equação:</strong> 2x + 5 = 15
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="input" placeholder="Digite sua expressão matemática..." 
+                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <button onclick="calcular()">Calcular</button>
+            </div>
+
+            <div class="output-section" id="output">
+                <div style="text-align: center; color: #999; padding: 40px 10px;">
+                    Digite uma expressão matemática para começar
+                </div>
+            </div>
+
+            <button class="clear-btn" onclick="limparHistorico()">🗑️ Limpar Histórico</button>
+        </div>
+
+        <!-- ABA 2: Método da Bissecção -->
+        <div id="bisseccao" class="tab-content">
+            <p style="margin-bottom: 15px;">Este algoritmo usa o Teorema do Valor Intermediário para encontrar a raiz aproximada, reduzindo o intervalo onde a função muda de sinal.</p>
+
+            <div class="controles">
+                <label>Função f(x):</label>
+                <input type="text" id="funcao" value="x^3 - x - 2" style="width: 100%;" placeholder="Ex: x^3 - x - 2">
+                
+                <label>Início do Intervalo (a):</label>
+                <input type="number" id="inicio" value="1" step="0.1" style="width: 100%;">
+                
+                <label>Fim do Intervalo (b):</label>
+                <input type="number" id="fim" value="2" step="0.1" style="width: 100%;">
+                
+                <button onclick="iniciarBisseccao()" style="width: 100%; margin-top: 15px;">Calcular Raízes</button>
+            </div>
+
+            <div id="resultado"></div>
+            <table id="tabela-iteracoes" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Iteração</th>
+                        <th>a (Início)</th>
+                        <th>b (Fim)</th>
+                        <th>m (Ponto Médio)</th>
+                        <th>f(m)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        <div class="nomes">
+            <h2>Grupo formado por</h2>
+            <p>John Marley B. Silva</p>
+            <p>Vitoria Stravarengo</p>
+            <p>Carlos Miranda</p>
+            <p>Elias Augusto</p>
+        </div>
+    </footer>
+
+    <script>
+        // ========== SISTEMA DE ABAS ==========
+        function mudarAba(abaId) {
+            // Remove active de todas as abas
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Ativa a aba selecionada
+            event.target.classList.add('active');
+            document.getElementById(abaId).classList.add('active');
+        }
+
+        // ========== CALCULADORA AVANÇADA ==========
+        const historico = [];
+
+        window.addEventListener('load', () => {
+            if (typeof math === 'undefined') {
+                alert('Erro ao carregar Math.js. Verifique sua conexão com a internet.');
+            }
+            
+            document.getElementById('input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') calcular();
+            });
+        });
+
+        function usarExemplo(expressao) {
+            document.getElementById('input').value = expressao;
+            document.getElementById('input').focus();
+        }
+
+        function resolverBhaskara(a, b, c) {
+            const delta = b * b - 4 * a * c;
+            
+            if (delta < 0) {
+                return `Sem solução real (Δ = ${delta.toFixed(2)})`;
+            } else if (delta === 0) {
+                const x = -b / (2 * a);
+                return `x = ${x.toFixed(4)} (raiz dupla)`;
+            } else {
+                const x1 = (-b + Math.sqrt(delta)) / (2 * a);
+                const x2 = (-b - Math.sqrt(delta)) / (2 * a);
+                return `x₁ = ${x1.toFixed(4)} e x₂ = ${x2.toFixed(4)}`;
+            }
+        }
+
+        function resolverEquacao(expressao) {
+            try {
+                expressao = expressao.replace(/\s/g, '');
+                const partes = expressao.split('=');
+                
+                if (partes.length !== 2) return null;
+                
+                let equacao = `(${partes[0]}) - (${partes[1]})`;
+                
+                if (equacao.includes('x^2') || equacao.includes('x²')) {
+                    equacao = equacao.replace(/x²/g, 'x^2');
+                    
+                    let a = 0, b = 0, c = 0;
+                    
+                    const matchA = equacao.match(/([+-]?\d*\.?\d*)\*?x\^2/);
+                    if (matchA) {
+                        let coef = matchA[1];
+                        if (coef === '' || coef === '+') coef = '1';
+                        if (coef === '-') coef = '-1';
+                        a = parseFloat(coef);
+                    }
+                    
+                    const matchB = equacao.match(/([+-]?\d*\.?\d*)\*?x(?!\^)/);
+                    if (matchB) {
+                        let coef = matchB[1];
+                        if (coef === '' || coef === '+') coef = '1';
+                        if (coef === '-') coef = '-1';
+                        b = parseFloat(coef);
+                    }
+                    
+                    const numeros = equacao.match(/([+-]?\d+\.?\d*)(?![x^])/g);
+                    if (numeros) {
+                        c = numeros.reduce((sum, n) => {
+                            if (!equacao.substring(equacao.indexOf(n) - 1).startsWith('x')) {
+                                return sum + parseFloat(n);
+                            }
+                            return sum;
+                        }, 0);
+                    }
+                    
+                    if (a !== 0) {
+                        return resolverBhaskara(a, b, c);
+                    }
+                }
+                
+                if (equacao.includes('x')) {
+                    const node = math.parse(equacao);
+                    const simplified = math.simplify(node);
+                    const str = simplified.toString();
+                    
+                    const match = str.match(/([+-]?\d*\.?\d*)\s?\*?\s?x\s?([+-]?\d+\.?\d*)?/);
+                    if (match) {
+                        let a = match[1] || '1';
+                        if (a === '' || a === '+') a = '1';
+                        if (a === '-') a = '-1';
+                        a = parseFloat(a);
+                        
+                        let b = match[2] ? parseFloat(match[2]) : 0;
+                        const x = -b / a;
+                        return `x = ${x.toFixed(4)}`;
+                    }
+                }
+                
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function calcular() {
+            const input = document.getElementById('input');
+            const expressao = input.value.trim();
+            
+            if (!expressao) {
+                alert('Digite uma expressão!');
+                return;
+            }
+
+            try {
+                if (expressao.includes('=')) {
+                    const resultado = resolverEquacao(expressao);
+                    if (resultado) {
+                        adicionarAoHistorico(expressao, resultado, false);
+                        input.value = '';
+                        return;
+                    }
+                }
+
+                let expr = expressao
+                    .replace(/x²/g, 'x^2')
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/')
+                    .replace(/\*\*/g, '^');
+
+                const resultado = math.evaluate(expr);
+                
+                let resultadoFormatado;
+                if (typeof resultado === 'number') {
+                    resultadoFormatado = math.format(resultado, {precision: 14});
+                } else {
+                    resultadoFormatado = resultado.toString();
+                }
+
+                adicionarAoHistorico(expressao, resultadoFormatado, false);
+                input.value = '';
+
+            } catch (error) {
+                adicionarAoHistorico(expressao, `Erro: ${error.message}`, true);
+            }
+        }
+
+        function adicionarAoHistorico(expressao, resultado, isError) {
+            historico.push({ expressao, resultado, isError });
+            atualizarOutput();
+        }
+
+        function atualizarOutput() {
+            const output = document.getElementById('output');
+            
+            if (historico.length === 0) {
+                output.innerHTML = `
+                    <div style="text-align: center; color: #999; padding: 40px 10px;">
+                        Digite uma expressão matemática para começar
+                    </div>
+                `;
+                return;
+            }
+
+            output.innerHTML = historico.map(item => `
+                <div class="output-item ${item.isError ? 'error' : ''}">
+                    <div class="input">» ${item.expressao}</div>
+                    <div class="result">→ ${item.resultado}</div>
+                </div>
+            `).reverse().join('');
+        }
+
+        function limparHistorico() {
+            if (historico.length === 0) return;
+            
+            if (confirm('Deseja limpar todo o histórico?')) {
+                historico.length = 0;
+                atualizarOutput();
+            }
+        }
+
+        // ========== MÉTODO DA BISSECÇÃO ==========
+        function avaliarFuncao(funcaoStr, x) {
+            let jsStr = funcaoStr.toLowerCase()
+                .replace(/\^/g, '**')
+                .replace(/sen/g, 'Math.sin')
+                .replace(/cos/g, 'Math.cos')
+                .replace(/log/g, 'Math.log')
+                .replace(/e/g, 'Math.E');
+
+            try {
+                return new Function('x', 'return ' + jsStr)(x);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function iniciarBisseccao() {
+            const funcStr = document.getElementById('funcao').value;
+            let a = parseFloat(document.getElementById('inicio').value);
+            let b = parseFloat(document.getElementById('fim').value);
+            const tolerancia = 0.0001;
+            const maxIter = 100;
+            
+            const tbody = document.querySelector('#tabela-iteracoes tbody');
+            const tabela = document.getElementById('tabela-iteracoes');
+            const divResultado = document.getElementById('resultado');
+            
+            tbody.innerHTML = '';
+            divResultado.innerHTML = '';
+            
+            let fa = avaliarFuncao(funcStr, a);
+            let fb = avaliarFuncao(funcStr, b);
+
+            if (fa === null || fb === null) {
+                divResultado.innerHTML = '<p style="color: red; font-weight: bold;">Erro na função. Verifique a sintaxe.</p>';
+                return;
+            }
+
+            if (fa * fb >= 0) {
+                divResultado.innerHTML = `<p style="color: red; font-weight: bold;">
+                    O Teorema do Valor Intermediário falhou!<br>
+                    f(${a}) = ${fa.toFixed(4)} e f(${b}) = ${fb.toFixed(4)} têm o mesmo sinal.<br>
+                    Não é possível garantir uma raiz neste intervalo pelo método da bissecção.
+                    </p>`;
+                tabela.style.display = 'none';
+                return;
+            }
+
+            tabela.style.display = 'table';
+            
+            let m, fm;
+            for (let i = 1; i <= maxIter; i++) {
+                m = (a + b) / 2;
+                fm = avaliarFuncao(funcStr, m);
+
+                let row = `<tr>
+                    <td>${i}</td>
+                    <td>${a.toFixed(6)}</td>
+                    <td>${b.toFixed(6)}</td>
+                    <td class="destaque">${m.toFixed(6)}</td>
+                    <td>${fm.toFixed(6)}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+
+                if (Math.abs(fm) < tolerancia || (b - a) / 2 < tolerancia) {
+                    divResultado.innerHTML = `<h3 style="color: var(--success);">Raiz aproximada encontrada: x = ${m.toFixed(6)}</h3>`;
+                    return;
+                }
+
+                if (fa * fm < 0) {
+                    b = m;
+                    fb = fm;
+                } else {
+                    a = m;
+                    fa = fm;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
